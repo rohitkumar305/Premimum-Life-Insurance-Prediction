@@ -1,0 +1,336 @@
+================================================================================
+           PREMIUM LIFE INSURANCE PREDICTION API - FULL PROJECT GUIDE
+================================================================================
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+This project is a Machine Learning-powered REST API built with FastAPI that 
+predicts the insurance premium category for individuals. Based on a user's 
+demographic, biometric, economic, and lifestyle profile, the trained ML model 
+classifies the expected insurance premium tier into one of three categories:
+    - "Low"
+    - "Medium"
+    - "High"
+
+Key Highlights:
+- Framework: FastAPI (Fast, modern, asynchronous Python web framework)
+- Schema & Validation: Pydantic v2 with computed fields and custom validators
+- Machine Learning: Scikit-learn Pipeline (ColumnTransformer + RandomForestClassifier)
+- Serialization: Model saved as pickle (`model.pkl`)
+- Server: Uvicorn ASGI server with hot-reloading support
+- API Docs: Automatic interactive Swagger UI (/docs) and ReDoc (/redoc)
+
+
+2. PROJECT FOLDER STRUCTURE
+--------------------------------------------------------------------------------
+d:\PYTHON PRACTICES\FastAPI\Premimum Life Insurance Prediction
+├── .gitignore                 # Git ignore file (excludes virtualenvs, caches, etc.)
+├── app.py                     # Main application entry point defining FastAPI routes
+├── requirements.txt           # Python package dependencies
+├── guide.txt                  # Full comprehensive project guide & instructions
+│
+├── config/
+│   ├── __pycache__/
+│   └── cities.py              # City classification lists (Tier 1 and Tier 2 cities)
+│
+├── model/
+│   ├── __pycache__/
+│   ├── insurance.csv          # Sample dataset used for training/reference
+│   ├── model.pkl              # Pre-trained Scikit-learn Pipeline ML model
+│   └── predict.py             # Inference module to load model and run predictions
+│
+├── schema/
+│   ├── __pycache__/
+│   ├── user_input.py          # Pydantic input model, data validation & computed fields
+│   └── prediction_response.py # Pydantic output model for API response
+│
+└── myenv/                     # Python Virtual Environment (Optional / Local)
+
+
+3. COMPONENT BREAKDOWN & BUSINESS LOGIC
+--------------------------------------------------------------------------------
+
+A. schema/user_input.py (Input Validation & Feature Engineering):
+   Accepts raw customer parameters and computes derived features required by the 
+   ML model before prediction.
+   
+   Raw Input Fields:
+   - age          : Integer (1 to 120 years)
+   - weight       : Float in kilograms (10 to 350 kg)
+   - height       : Float in meters (0.5 to 2.5 meters, e.g. 1.75)
+   - income_lpa   : Float in Lakhs Per Annum (>= 0.0)
+   - smoker       : Boolean (true / false)
+   - city         : String (cleaned & normalized, e.g. "Mumbai", "Jaipur")
+   - occupation   : Enum string. Allowed values:
+                    ['retired', 'freelancer', 'student', 'government_job',
+                     'business_owner', 'unemployed', 'private_job']
+
+   Automatic Feature Engineering (@computed_field):
+   - bmi:
+       Computed as: weight / (height ** 2)
+   - lifestyle_risk:
+       * "high"   : if smoker is True and BMI > 30
+       * "medium" : if smoker is True or BMI > 27
+       * "low"    : otherwise
+   - age_group:
+       * "young"       : age < 25
+       * "adult"       : 25 <= age < 45
+       * "middle_aged" : 45 <= age < 60
+       * "senior"      : age >= 60
+   - city_tier:
+       * 1 : If city is in Tier 1 list (Mumbai, Delhi, Bangalore, Chennai, etc.)
+       * 2 : If city is in Tier 2 list (Jaipur, Indore, Lucknow, Surat, etc.)
+       * 3 : Any other city
+   
+   City Normalization (@field_validator):
+   - Cleans leading/trailing whitespace and converts to Title Case.
+   - Maps aliases (e.g., "Bengaluru" -> "Bangalore", "New Delhi" -> "Delhi", 
+     "Gurugram" -> "Gurgaon", "Prayagraj" -> "Allahabad").
+
+B. model/predict.py (ML Inference Pipeline):
+   - Dynamically resolves `model.pkl` relative to its script location.
+   - Includes backward-compatibility patch for scikit-learn unpickling.
+   - Accepts the 6 engineered features:
+     ['bmi', 'age_group', 'lifestyle_risk', 'city_tier', 'income_lpa', 'occupation']
+   - Converts the input into a single-row Pandas DataFrame and invokes `model.predict()`.
+   - Returns the predicted category string.
+
+C. app.py (FastAPI Application):
+   - GET /        : Health check / welcome endpoint.
+   - POST /predict: Accepts JSON matching `UserInput`, computes features,
+                    calls `predict_output()`, and returns `PredictionResponse`.
+
+
+4. PREREQUISITES & ENVIRONMENT SETUP
+--------------------------------------------------------------------------------
+
+System Requirements:
+- Python 3.10 or 3.11 (Python 3.10 is fully verified with scikit-learn 1.6/1.7)
+- pip (Python package installer)
+
+Step-by-Step Setup:
+
+1) Open Terminal / PowerShell in the project directory:
+   cd "d:\PYTHON PRACTICES\FastAPI\Premimum Life Insurance Prediction"
+
+2) Create a fresh virtual environment (recommended):
+   py -3.10 -m venv venv
+   (Or: python -m venv venv)
+
+3) Activate the virtual environment:
+   - On Windows (PowerShell):
+     .\venv\Scripts\Activate.ps1
+   - On Windows (Command Prompt):
+     .\venv\Scripts\activate.bat
+   - On macOS/Linux:
+     source venv/bin/activate
+
+   Note for PowerShell: If script execution is restricted, run:
+     Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+4) Install required packages:
+   pip install -r requirements.txt
+
+   Key Core Dependencies:
+   - fastapi
+   - uvicorn
+   - pydantic
+   - scikit-learn
+   - pandas
+   - numpy
+
+
+5. HOW TO START THE APPLICATION
+--------------------------------------------------------------------------------
+
+Method A: Run directly using Python
+   py -3.10 app.py
+   (or: python app.py)
+   
+   This uses the built-in runner in app.py with reload=True on port 8000.
+
+Method B: Run using Uvicorn CLI
+   uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+
+Once started, the terminal will show:
+   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+   INFO:     Started reloader process
+   INFO:     Application startup complete.
+
+
+6. HOW TO TEST THE APPLICATION
+--------------------------------------------------------------------------------
+
+Here are 5 reliable ways to test the API:
+
+--------------------------------------------------------------------------------
+METHOD 1: Interactive Swagger UI (Recommended - No tools needed, runs in browser)
+--------------------------------------------------------------------------------
+1. Open your web browser and go to:
+   http://127.0.0.1:8000/docs
+2. You will see two endpoints:
+   - GET  /
+   - POST /predict
+3. Click on "POST /predict" -> Click "Try it out".
+4. Modify the request body JSON or leave the provided example:
+   {
+     "age": 69,
+     "weight": 119.0,
+     "height": 1.56,
+     "income_lpa": 2.52,
+     "smoker": false,
+     "city": "Jaipur",
+     "occupation": "retired"
+   }
+5. Click "Execute".
+6. Scroll down to see the response (Status Code: 200, Body: {"premium_category": "High"}).
+
+Interactive alternative:
+   http://127.0.0.1:8000/redoc
+
+
+--------------------------------------------------------------------------------
+METHOD 2: cURL (Command Line)
+--------------------------------------------------------------------------------
+A. Health Check (GET /):
+   curl -X GET http://127.0.0.1:8000/
+
+   Expected Output:
+   {"message":"Insurance Premium Prediction API"}
+
+B. Predict High Premium:
+   curl -X POST "http://127.0.0.1:8000/predict" \
+     -H "Content-Type: application/json" \
+     -d "{\"age\": 69, \"weight\": 119.0, \"height\": 1.56, \"income_lpa\": 2.52, \"smoker\": false, \"city\": \"Jaipur\", \"occupation\": \"retired\"}"
+
+   Expected Output:
+   {"premium_category":"High"}
+
+C. Predict Low Premium (Young, healthy BMI, high income):
+   curl -X POST "http://127.0.0.1:8000/predict" \
+     -H "Content-Type: application/json" \
+     -d "{\"age\": 28, \"weight\": 68.0, \"height\": 1.78, \"income_lpa\": 25.0, \"smoker\": false, \"city\": \"Mumbai\", \"occupation\": \"private_job\"}"
+
+   Expected Output:
+   {"premium_category":"Low"}
+
+
+--------------------------------------------------------------------------------
+METHOD 3: Windows PowerShell (Native, no curl needed)
+--------------------------------------------------------------------------------
+A. Health Check:
+   Invoke-RestMethod -Uri "http://127.0.0.1:8000/" -Method GET
+
+B. Prediction Request:
+   $body = @{
+       age = 69
+       weight = 119.0
+       height = 1.56
+       income_lpa = 2.52
+       smoker = $false
+       city = "Jaipur"
+       occupation = "retired"
+   } | ConvertTo-Json
+
+   Invoke-RestMethod -Uri "http://127.0.0.1:8000/predict" -Method POST -ContentType "application/json" -Body $body
+
+
+--------------------------------------------------------------------------------
+METHOD 4: Automated Python Test Script
+--------------------------------------------------------------------------------
+You can run an automated test without keeping a server running using FastAPI's 
+built-in TestClient.
+
+Save the following as `test_app.py` or run directly in Python terminal:
+
+```python
+from fastapi.testclient import TestClient
+from app import app
+
+client = TestClient(app)
+
+# 1. Test Home route
+res_home = client.get("/")
+assert res_home.status_code == 200
+print("GET / passed:", res_home.json())
+
+# 2. Test High Risk Profile
+sample_high = {
+    "age": 69,
+    "weight": 119.0,
+    "height": 1.56,
+    "income_lpa": 2.52,
+    "smoker": False,
+    "city": "Jaipur",
+    "occupation": "retired"
+}
+res_pred = client.post("/predict", json=sample_high)
+assert res_pred.status_code == 200
+print("POST /predict (High) passed:", res_pred.json())
+
+# 3. Test Low Risk Profile
+sample_low = {
+    "age": 28,
+    "weight": 68.0,
+    "height": 1.78,
+    "income_lpa": 30.0,
+    "smoker": False,
+    "city": "Mumbai",
+    "occupation": "private_job"
+}
+res_pred2 = client.post("/predict", json=sample_low)
+assert res_pred2.status_code == 200
+print("POST /predict (Low) passed:", res_pred2.json())
+print("All automated tests completed successfully!")
+```
+
+Run it via:
+   py -3.10 test_app.py
+
+
+--------------------------------------------------------------------------------
+METHOD 5: Testing Input Validations & Error Handling
+--------------------------------------------------------------------------------
+FastAPI & Pydantic automatically guard the API against invalid inputs:
+
+Test Case 1: Invalid Age (> 120 or <= 0)
+   Payload: {"age": 150, "weight": 70, "height": 1.75, "income_lpa": 10, "smoker": false, "city": "Delhi", "occupation": "private_job"}
+   Result: HTTP 422 Unprocessable Entity (Field validation failed: age must be <= 120)
+
+Test Case 2: Invalid Occupation
+   Payload: {"age": 30, "weight": 70, "height": 1.75, "income_lpa": 10, "smoker": false, "city": "Delhi", "occupation": "astronaut"}
+   Result: HTTP 422 Unprocessable Entity (Value must be one of the permitted enums)
+
+Test Case 3: Empty City Name
+   Payload: {"age": 30, "weight": 70, "height": 1.75, "income_lpa": 10, "smoker": false, "city": "   ", "occupation": "private_job"}
+   Result: HTTP 422 Unprocessable Entity (Value error: City name cannot be empty or whitespace only)
+
+
+7. TROUBLESHOOTING & COMMON PITFALLS
+--------------------------------------------------------------------------------
+1. "No Python at 'C:\Users\...\Python311\python.exe'"
+   Cause: An old virtual environment (`myenv`) references a deleted Python path.
+   Solution: Create a fresh venv using the active Python:
+     py -3.10 -m venv venv
+     .\venv\Scripts\activate
+
+2. InconsistentVersionWarning on unpickling model:
+   Cause: The model was saved with scikit-learn 1.6.1 and loaded on a newer/different 
+          version (e.g. 1.7.2).
+   Status: Safe to ignore. The project includes compatibility code in `model/predict.py`
+           for `_RemainderColsList` so predictions work properly without crashing.
+
+3. Port 8000 is already in use:
+   Solution: Run uvicorn on another port, for example:
+     uvicorn app:app --port 8080 --reload
+
+
+================================================================================
+                              QUICK CHEATSHEET
+================================================================================
+Start Server       : py -3.10 app.py
+Interactive Docs   : http://127.0.0.1:8000/docs
+Alternative Docs   : http://127.0.0.1:8000/redoc
+Health Check URL   : http://127.0.0.1:8000/
+Prediction URL     : http://127.0.0.1:8000/predict [POST]
+================================================================================
