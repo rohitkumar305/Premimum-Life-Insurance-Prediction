@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InsurAI | Premium Life Insurance Category Prediction</title>
+  <meta name="description" content="AI-powered insurance premium prediction using machine learning, biometric risk scoring, and real-time demographic classification.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <a href="/" class="brand">
+        <div class="brand-icon">🛡️</div>
+        <div>
+          <div class="brand-title">InsurAI Predict</div>
+          <div class="brand-subtitle">Machine Learning Engine v1.0</div>
+        </div>
+      </a>
+      <div class="nav-links">
+        <div id="api-status-badge" class="status-badge">
+          <span class="pulse-dot"></span> API Online
+        </div>
+        <a href="/docs" target="_blank" class="nav-btn" title="View interactive Swagger API documentation">Swagger Docs</a>
+        <a href="/redoc" target="_blank" class="nav-btn" title="View ReDoc API documentation">ReDoc</a>
+        <a href="https://github.com/rohitkumar305/Premimum-Life-Insurance-Prediction" target="_blank" class="nav-btn">GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero Banner -->
+    <section class="hero">
+      <div class="hero-tag">✨ Scikit-Learn Random Forest Pipeline</div>
+      <h1 class="hero-title">Predict Life Insurance <span class="gradient-text">Premium Tiers</span></h1>
+      <p class="hero-desc">
+        Calculate automated underwriting risk categories using demographic, biometric, and financial variables with millisecond inference.
+      </p>
+
+      <!-- Quick Preset Profile Chips -->
+      <div class="presets-bar">
+        <span class="presets-label">⚡ Quick Presets:</span>
+        <button type="button" class="preset-chip" onclick="loadPreset('executive')">
+          💼 Corporate Executive
+        </button>
+        <button type="button" class="preset-chip" onclick="loadPreset('senior')">
+          👴 Senior Citizen
+        </button>
+        <button type="button" class="preset-chip" onclick="loadPreset('student')">
+          🎓 Young Student
+        </button>
+        <button type="button" class="preset-chip" onclick="loadPreset('business')">
+          🏢 Business Owner
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Workspace Grid -->
+    <div class="main-grid">
+      
+      <!-- Left Column: Input Form -->
+      <div class="glass-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">👤 Customer Profile</h2>
+            <div class="card-subtitle">Enter customer biometrics & lifestyle data</div>
+          </div>
+        </div>
+
+        <!-- Error Notification Banner -->
+        <div id="error-banner" class="error-banner"></div>
+
+        <form id="prediction-form" novalidate>
+          
+          <!-- Age & Annual Income -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="age" class="form-label">
+                Age
+                <span class="label-hint">1 - 120 yrs</span>
+              </label>
+              <div class="input-wrapper">
+                <input type="number" id="age" name="age" class="form-input" min="1" max="120" required placeholder="e.g. 32">
+                <span class="input-unit">years</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="income_lpa" class="form-label">
+                Annual Income
+                <span class="label-hint">in Lakhs</span>
+              </label>
+              <div class="input-wrapper">
+                <input type="number" id="income_lpa" name="income_lpa" class="form-input" min="0" step="0.1" required placeholder="e.g. 15.5">
+                <span class="input-unit">LPA</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weight & Height -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="weight" class="form-label">
+                Weight
+                <span class="label-hint">10 - 350 kg</span>
+              </label>
+              <div class="input-wrapper">
+                <input type="number" id="weight" name="weight" class="form-input" min="10" max="350" step="0.1" required placeholder="e.g. 68">
+                <span class="input-unit">kg</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="height" class="form-label">
+                Height
+                <span class="label-hint">0.5 - 2.5 m</span>
+              </label>
+              <div class="input-wrapper">
+                <input type="number" id="height" name="height" class="form-input" min="0.5" max="2.5" step="0.01" required placeholder="e.g. 1.75">
+                <span class="input-unit">m</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- City & Occupation -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city" class="form-label">
+                Resident City
+                <span class="label-hint">Auto tier mapped</span>
+              </label>
+              <input type="text" id="city" name="city" class="form-input" list="city-list" required placeholder="e.g. Mumbai, Jaipur">
+              <datalist id="city-list">
+                <option value="Mumbai">
+                <option value="Delhi">
+                <option value="Bangalore">
+                <option value="Chennai">
+                <option value="Kolkata">
+                <option value="Hyderabad">
+                <option value="Pune">
+                <option value="Jaipur">
+                <option value="Indore">
+                <option value="Lucknow">
+                <option value="Chandigarh">
+                <option value="Surat">
+                <option value="Ahmedabad">
+                <option value="Noida">
+              </datalist>
+            </div>
+
+            <div class="form-group">
+              <label for="occupation" class="form-label">
+                Occupation
+                <span class="label-hint">Employment status</span>
+              </label>
+              <select id="occupation" name="occupation" class="form-select" required>
+                <option value="private_job">Private Sector Job</option>
+                <option value="government_job">Government Job</option>
+                <option value="business_owner">Business Owner</option>
+                <option value="freelancer">Freelancer</option>
+                <option value="student">Student</option>
+                <option value="retired">Retired</option>
+                <option value="unemployed">Unemployed</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Smoker Toggle -->
+          <div class="form-group">
+            <label class="form-label">Lifestyle Factor</label>
+            <label class="switch-container" for="smoker">
+              <div class="switch-label-group">
+                <span style="font-size: 20px;">🚬</span>
+                <div>
+                  <div class="switch-text">Smoker / Tobacco Use</div>
+                  <div class="switch-subtext">Significantly influences lifestyle risk scoring</div>
+                </div>
+              </div>
+              <div class="toggle">
+                <input type="checkbox" id="smoker" name="smoker">
+                <span class="toggle-slider"></span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="submit-btn" class="submit-btn">
+            <span class="spinner" id="submit-spinner"></span>
+            <span id="submit-btn-text">Predict Insurance Premium</span>
+            <span style="font-size: 1.1rem;">⚡</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Right Column: Live Computed Biometrics & Results -->
+      <div class="right-panel">
+        
+        <!-- Live Real-Time Insights Card -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">📊 Live Feature Engineering</h2>
+              <div class="card-subtitle">Real-time parameters derived for the model</div>
+            </div>
+          </div>
+
+          <div class="live-features-grid">
+            <!-- BMI Meter -->
+            <div class="feature-pill-card">
+              <div class="feature-pill-title">Calculated BMI</div>
+              <div class="feature-pill-val">
+                <span id="live-bmi-val">--</span>
+                <span id="live-bmi-badge" class="feature-pill-badge">Awaiting</span>
+              </div>
+              <div class="bmi-meter-bar">
+                <div id="live-bmi-fill" class="bmi-meter-fill"></div>
+              </div>
+            </div>
+
+            <!-- Lifestyle Risk -->
+            <div class="feature-pill-card">
+              <div class="feature-pill-title">Lifestyle Risk</div>
+              <div class="feature-pill-val">
+                <span id="live-risk-val">LOW</span>
+              </div>
+              <span id="live-risk-badge" class="feature-pill-badge" style="margin-top: 6px; display: inline-block;">Minimal Risk</span>
+            </div>
+
+            <!-- Age Group -->
+            <div class="feature-pill-card">
+              <div class="feature-pill-title">Age Classification</div>
+              <div class="feature-pill-val" style="font-size: 1.05rem;">
+                <span id="live-agegroup-val">--</span>
+              </div>
+            </div>
+
+            <!-- City Tier -->
+            <div class="feature-pill-card">
+              <div class="feature-pill-title">Location Tier</div>
+              <div class="feature-pill-val" style="font-size: 1.05rem;">
+                <span id="live-citytier-val">--</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Initial Placeholder State -->
+        <div id="placeholder-state" class="glass-card placeholder-state">
+          <div class="placeholder-icon">🎯</div>
+          <div class="placeholder-title">Ready for Assessment</div>
+          <div class="placeholder-text">
+            Fill in the customer details or select a quick preset above, then click <strong>Predict Insurance Premium</strong>.
+          </div>
+        </div>
+
+        <!-- Dynamic Prediction Result Card -->
+        <div id="result-card" class="glass-card result-card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">🎉 Underwriting Assessment</h2>
+              <div class="card-subtitle">RandomForestClassifier Inference Result</div>
+            </div>
+          </div>
+
+          <div id="result-hero" class="result-hero">
+            <div id="result-icon" class="result-badge-icon">🛡️</div>
+            <div id="result-tier-title" class="result-tier-title">Low Premium</div>
+            <div id="result-tier-desc" class="result-tier-subtitle">
+              Optimal risk tier based on biometrics and lifestyle indicators.
+            </div>
+          </div>
+
+          <!-- Feature Breakdown Summary Table -->
+          <table class="result-breakdown-table">
+            <tr>
+              <td>Body Mass Index (BMI)</td>
+              <td class="val" id="res-bmi">21.5</td>
+            </tr>
+            <tr>
+              <td>Lifestyle Risk Category</td>
+              <td class="val" id="res-risk">LOW</td>
+            </tr>
+            <tr>
+              <td>Demographic Age Group</td>
+              <td class="val" id="res-agegroup">Adult (25-44)</td>
+            </tr>
+            <tr>
+              <td>Geographic Tier</td>
+              <td class="val" id="res-citytier">Tier 1 (Mumbai)</td>
+            </tr>
+            <tr>
+              <td>Income Bracket</td>
+              <td class="val" id="res-income">₹ 26.5 LPA</td>
+            </tr>
+            <tr>
+              <td>Employment Classification</td>
+              <td class="val" id="res-occupation">PRIVATE JOB</td>
+            </tr>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>
+        Insurance Premium Classification Model • Built with <strong>FastAPI</strong> & <strong>Scikit-Learn</strong>
+      </p>
+      <p style="margin-top: 6px; font-size: 0.78rem;">
+        <a href="/docs">OpenAPI Docs</a> • <a href="/redoc">ReDoc</a> • <a href="https://github.com/rohitkumar305/Premimum-Life-Insurance-Prediction" target="_blank">GitHub Repository</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Script -->
+  <script src="/static/app.js"></script>
+</body>
+</html>

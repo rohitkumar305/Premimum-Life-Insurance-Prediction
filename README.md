@@ -38,6 +38,7 @@ When a user submits raw data (such as age, height, weight, smoking habits, incom
 
 ## ✨ Key Features
 
+- **Interactive Web Interface**: Modern glassmorphism UI with real-time BMI gauge, risk assessment, quick customer presets, and live prediction results.
 - **High-Performance REST API**: Built on **FastAPI** and served with **Uvicorn ASGI**.
 - **Automated Feature Engineering**: Uses Pydantic `@computed_field` to calculate BMI, age groups, lifestyle risk levels, and location tiers on the fly.
 - **Smart City Normalization**: Cleans whitespace, handles casing, and maps common aliases (e.g., `Bengaluru` ➔ `Bangalore`, `New Delhi` ➔ `Delhi`).
@@ -50,6 +51,10 @@ When a user submits raw data (such as age, height, weight, smoking habits, incom
 
 ```text
 ├── app.py                      # FastAPI application entry point & route definitions
+├── static/                     # Web Frontend files
+│   ├── index.html              # Responsive glassmorphism web interface
+│   ├── style.css               # Vanilla CSS design system & animations
+│   └── app.js                  # Frontend controller, live gauges & API fetch logic
 ├── config/
 │   └── cities.py               # Tier 1 and Tier 2 Indian city classifications
 ├── model/

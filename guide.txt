@@ -25,9 +25,15 @@ Key Highlights:
 --------------------------------------------------------------------------------
 d:\PYTHON PRACTICES\FastAPI\Premimum Life Insurance Prediction
 ├── .gitignore                 # Git ignore file (excludes virtualenvs, caches, etc.)
-├── app.py                     # Main application entry point defining FastAPI routes
+├── app.py                     # Main application entry point defining FastAPI routes & static mount
 ├── requirements.txt           # Python package dependencies
 ├── guide.txt                  # Full comprehensive project guide & instructions
+├── README.md                  # Project overview & documentation
+│
+├── static/                    # Frontend UI assets
+│   ├── index.html             # Responsive web user interface
+│   ├── style.css              # Custom Vanilla CSS design system
+│   └── app.js                 # Frontend interactive logic & live biometric gauges
 │
 ├── config/
 │   ├── __pycache__/
